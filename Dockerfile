@@ -8,6 +8,8 @@ COPY package*.json ./
 
 COPY app.js ./
 
+COPY routes.js ./
+
 COPY swagger.yaml ./
 
 RUN npm install

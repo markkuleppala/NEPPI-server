@@ -25,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017', {useNewUrlParser: true, useUnified
 //const openApiDocumentation = require('./openApiDocumentation');
 
 // Routing
-var routes = require('./routes.js');
+var routes = require('./routes');
 app.use('', routes);
 
 
