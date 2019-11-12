@@ -38,7 +38,7 @@ var ProjectSchema = new Schema({
 		type: Array, required: true//, enum: [‘Personal’,’Group’] // Add property of enum array [‘Personal’,’Group’]
 	},
 	members: {
-		type: [UserSchema], required: true // Array of User [userIds]
+		type: [{type: mongoose.Schema.ObjectId, ref: 'User'}], required: true // Array of User [userIds]
 	}
 });
 
@@ -130,11 +130,12 @@ router.delete('/user/:user_id', function (req, res, next) {
 	})
 });
 
-
+/*
 router.all('/group', function (req, res, next) {
 	console.log("hello");
-	res.send('group')
+	res.send('group');
 });
+*/
 
 // Group
 // 1
@@ -154,10 +155,8 @@ router.post('/group', function (req, res, next) {
 router.get('/group/:group_id', function (req, res, next) {
 	Group.findById(req.params.group_id, function (err, group) {
 		if (err) {
-			console.log("pung");
 			next(err);
 		} else {
-			console.log("pang");
 			res.json({id: group._id, name: group.name, owner: group.owner});
 		}
 	})
@@ -165,12 +164,11 @@ router.get('/group/:group_id', function (req, res, next) {
 
 // 3
 router.put('/group/:group_id', function (req, res, next) {
-	console.log(req.params);
 	Group.findByIdAndUpdate(req.params.group_id, req.body, function (err, group) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'Group successfully updated', id: req.body._id, name: req.body.name, email: req.body.email}); // Or should req-->res?
+			res.json({message: 'Group successfully updated', id: group._id, name: group.name, email: group.email});
 		}
 	})
 });
@@ -191,19 +189,16 @@ router.delete('/group/:group_id', function (req, res, next) {
 });
 
 // 5
-router.put('group/:group_id/:user_id', function (req, res, next) {
-	console.log("ping");
-	User.findById(req.params.user_id, function (req, res, user) {
-		console.log(user);
-		console.log(user.params);
-		console.log(user._id);
+router.put('/group/:group_id/:user_id', function (req, res, next) {
+	User.findById(req.params.user_id, function (err, user) {
 		if (err) {
 			next(err);
 		} else if (!user) {
 			res.json({message: 'User not found'});
 			res.status(404);
 		} else {
-			Group.findByIdAndUpdate(req.params.group_id, req.body, function(req, res, group) { // req.body --> joku muu
+			Group.findByIdAndUpdate(req.params.group_id, req.params, function(err, group) {
+				console.log(group);
 				if (err) {
 					next(err);
 				} else if (!group) {
@@ -218,8 +213,31 @@ router.put('group/:group_id/:user_id', function (req, res, next) {
 	})
 });
 
+// Project
+// 1
+router.post('/project', function (req, res, next) {
+	var project = new Project(req.body);
+	project.save(function (err) {
+		if (err) {
+			next(err);
+		} else {
+			res.json({message: 'Project successfully created', id: project.id});
+			res.status(201);
+		}
+	})
+});
 
-
+// 2
+router.get('/project/:project_id', function (req, res, next) {
+	Project.findById(req.params.project_id, function (err, project) {
+		if (err) {
+			next(err);
+		} else {
+			res.json({id: project._id, name: project.name, description: project.description, type: project.type[0], members: project.members});
+			res.status(200);
+		}
+	})
+});
 
 
 module.exports = router;
