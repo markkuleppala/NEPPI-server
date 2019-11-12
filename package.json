@@ -15,5 +15,13 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {},
-  "description": ""
+  "description": "Simple user database server (NodeJS, MongoDB, Swagger)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markkuleppala/3.4.git"
+  },
+  "bugs": {
+    "url": "https://github.com/markkuleppala/3.4/issues"
+  },
+  "homepage": "https://github.com/markkuleppala/3.4#readme"
 }
