@@ -11,7 +11,6 @@ router.use(bodyParser.urlencoded({extended: true})); // Addition
 router.use(bodyParser.json()); // Addition
 
 var UserSchema = new Schema({
-	//_id: { type: mongoose.Schema.Types.ObjectId, auto: true}, // New addition
 	name: {
 		type: String, required: true
 	},
@@ -27,7 +26,6 @@ mongoose.model('User', UserSchema)
 var User = require('mongoose').model('User');
 
 var ProjectSchema = new Schema({
-	//_id: { type: mongoose.Schema.Types.ObjectId, auto: true}, // New addition
 	name: {
 		type: String, required: true
 	},
@@ -46,7 +44,6 @@ mongoose.model('Project', ProjectSchema)
 var Project = require('mongoose').model('Project');
 
 var GroupSchema = new Schema({
-	//_id: { type: mongoose.Schema.Types.ObjectId, auto: true}, // New addition
 	name: { type: String, required: true },
 	owner: { type: mongoose.Schema.ObjectId, ref: 'User', required: true }
 });
