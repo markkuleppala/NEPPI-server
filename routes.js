@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
-const bodyParser = require('body-parser'); // Addition
+const bodyParser = require('body-parser');
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
 mongoose.set('useFindAndModify', false); // Options
 
 // Request parser
-router.use(bodyParser.urlencoded({extended: true})); // Addition
-router.use(bodyParser.json()); // Addition
+router.use(bodyParser.urlencoded({extended: true}));
+router.use(bodyParser.json());
 
 
 // API documentation
@@ -21,12 +21,8 @@ router.get('/api-docs', swaggerUi.setup(swaggerDocument));
 //
 
 var UserSchema = new Schema({
-	name: {
-		type: String, required: true
-	},
-	email: {
-		type: String, required: true
-	},
+	name: { type: String, required: true },
+	email: { type: String, required: true },
 	address: { type: String },
 	phoneNumber: { type: String },
 	groups: { type: Array }
@@ -36,18 +32,10 @@ mongoose.model('User', UserSchema)
 var User = require('mongoose').model('User');
 
 var ProjectSchema = new Schema({
-	name: {
-		type: String, required: true
-	},
-	description: {
-		type: String, required: true
-	},
-	type: {
-		type: Array, required: true//, enum: [‘Personal’,’Group’] // Add property of enum array [‘Personal’,’Group’]
-	},
-	members: {
-		type: [{type: mongoose.Schema.ObjectId, ref: 'User'}], required: true // Array of User [userIds]
-	}
+	name: { type: String, required: true },
+	description: { type: String, required: true },
+	type: { type: Array, required: true },
+	members: { type: [{type: mongoose.Schema.ObjectId, ref: 'User'}], required: true }
 });
 
 mongoose.model('Project', ProjectSchema)
@@ -87,26 +75,8 @@ router.get('/user/:user_id', function (req, res, next) {
 
 // 3
 router.get('/users', function (req, res, next) {
-	console.log("/users");
-	console.log(req.query.groupID);
-	console.log(req.query.projectID);
-	/*
-	if (req.query.groupID) {
-		Group.findById(req.query.groupID, function (err_g, res_g) {
-			console.log("Group");
-			console.log(res_g);
-			console.log(res_g.owner);
-			if (err_g) {
-				next(err_g);
-			} else {
-				res.status(200).json([{'id': res_g.owner}]);
-			}
-		})
-	*/
 	if (req.query.groupID) {
 		User.find({groups: req.query.groupID}, function (err_u, res_u) {
-			console.log("User");
-			console.log(res_u);
 			if (err_u) {
 				next(err_u);
 			} else {
@@ -201,33 +171,7 @@ router.delete('/group/:group_id', function (req, res, next) {
 
 // 5
 router.put('/group/:group_id/:user_id', function (req, res, next) {
-/*
-	User.findById(req.params.user_id, function (err, user) {
-		if (err) {
-			next(err);
-		} else if (!user) {
-			res.status(404).json({message: 'User not found'});
-		} else {
-			Group.findByIdAndUpdate(req.params.group_id, req.params, function(err, group) {
-				console.log(group);
-				if (err) {
-					next(err);
-				} else if (!group) {
-					res.status(404).json({message: 'Group not found'});
-				} else {
-					res.status(200).json({message: 'User successfully added into a group', id: user._id}); // Also add group to User
-				}
-			})
-
-		}
-	})
-*/
 	User.findByIdAndUpdate(req.params.user_id, {$push: {groups: req.params.group_id}}, function (err, user) {
-		console.log("Add user to group");
-		console.log("req.params");
-		console.log(req.params);
-		console.log("user");
-		console.log(user);
 		if (err) {
 			next(err);
 		} else if (!user) {
