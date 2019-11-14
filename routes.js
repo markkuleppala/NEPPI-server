@@ -87,10 +87,13 @@ router.get('/user/:user_id', function (req, res, next) {
 
 // 3
 router.get('/users', function (req, res, next) {
+	console.log("/users");
 	console.log(req.query.groupID);
 	console.log(req.query.projectID);
+	/*
 	if (req.query.groupID) {
 		Group.findById(req.query.groupID, function (err_g, res_g) {
+			console.log("Group");
 			console.log(res_g);
 			console.log(res_g.owner);
 			if (err_g) {
@@ -99,14 +102,23 @@ router.get('/users', function (req, res, next) {
 				res.status(200).json([{'id': res_g.owner}]);
 			}
 		})
+	*/
+	if (req.query.groupID) {
+		User.find({groups: req.query.groupID}, function (err_u, res_u) {
+			console.log("User");
+			console.log(res_u);
+			if (err_u) {
+				next(err_u);
+			} else {
+				res.status(200).json([{'id': res_u[0]._id}]);
+			}
+		})
 	} else if (req.query.projectID) {
 		Project.findById(req.query.projectID, function (err_p, res_p) {
-			console.log(res_p);
-			console.log(res_p.members);
 			if (err_p) {
 				next(err_p);
 			} else {
-				res.status(200).json([{'id': res_p.members}]);
+				res.status(200).json([{'id': res_p.members[0]}]);
 			}
 		})
 	} else {
@@ -166,12 +178,6 @@ router.get('/group/:group_id', function (req, res, next) {
 // 3
 router.put('/group/:group_id', function (req, res, next) {
 	Group.findByIdAndUpdate(req.params.group_id, req.body, function (err, group) {
-		console.log("req.body");
-		console.log(req.body);
-		console.log("req.params");
-		console.log(req.params);
-		console.log("group");
-		console.log(group);
 		if (err) {
 			next(err);
 		} else {
@@ -195,6 +201,7 @@ router.delete('/group/:group_id', function (req, res, next) {
 
 // 5
 router.put('/group/:group_id/:user_id', function (req, res, next) {
+/*
 	User.findById(req.params.user_id, function (err, user) {
 		if (err) {
 			next(err);
@@ -211,6 +218,22 @@ router.put('/group/:group_id/:user_id', function (req, res, next) {
 					res.status(200).json({message: 'User successfully added into a group', id: user._id}); // Also add group to User
 				}
 			})
+
+		}
+	})
+*/
+	User.findByIdAndUpdate(req.params.user_id, {$push: {groups: req.params.group_id}}, function (err, user) {
+		console.log("Add user to group");
+		console.log("req.params");
+		console.log(req.params);
+		console.log("user");
+		console.log(user);
+		if (err) {
+			next(err);
+		} else if (!user) {
+			res.status(404).json({message: 'User not found'});
+		} else {
+			res.status(200).json({message: 'User successfully added into a group', id: user._id});
 		}
 	})
 });
