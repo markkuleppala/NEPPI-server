@@ -10,6 +10,16 @@ mongoose.set('useFindAndModify', false); // Options
 router.use(bodyParser.urlencoded({extended: true})); // Addition
 router.use(bodyParser.json()); // Addition
 
+
+// API documentation
+const YAML = require('yamljs');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = YAML.load('./swagger.yaml');
+
+router.use('/api-docs', swaggerUi.serve);
+router.get('/api-docs', swaggerUi.setup(swaggerDocument));
+//
+
 var UserSchema = new Schema({
 	name: {
 		type: String, required: true

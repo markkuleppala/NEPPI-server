@@ -10,8 +10,11 @@ npm init --yes
 npm install
 
 # Remove all images, container, and volumes
-docker rm -f $(docker ps -a -q) && docker rmi -f $(docker images -a -q) && docker volume rm $(docker volume ls -q)
+docker rm -f $(docker ps -a -q) || docker rmi -f $(docker images -a -q) || docker volume rm $(docker volume ls -q)
 
 
 
 docker rm -f $(docker ps -a -q) && docker run -d -p 27017:27017 -v ~/data:/data/db mongo
+
+
+mkdir exercise && cp {Dockerfile,app.js,package-lock.json,package.json,routes.js,swagger.yaml} exercise && zip -r exercise.zip exercise && rm -rf exercise

@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/markkuleppala/3.4/issues"
   },
-  "homepage": "https://github.com/markkuleppala/3.4#readme"
+  "homepage": "https://github.com/markkuleppala/3.4#readme",
+  "directories": {
+    "test": "test"
+  }
 }
