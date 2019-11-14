@@ -11,7 +11,7 @@ var path = require('path');
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://mongo:27017/db', {useNewUrlParser: true, useUnifiedTopology: true }); // Docker environment
-//mongoose.connect('mongodb://localhost:27107/db', {useNewUrlParser: true, useUnifiedTopology: true }); // Local environment
+//mongoose.connect('mongodb://localhost:27107', {useNewUrlParser: true, useUnifiedTopology: true }); // Local environment
 
 // Routing
 var routes = require('./routes');

@@ -69,8 +69,7 @@ router.post('/user', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'User successfully created', id: user.id});
-			res.status(201);
+			res.status(201).json({message: 'User successfully created', id: user.id});
 		}
 	});
 });
@@ -81,31 +80,37 @@ router.get('/user/:user_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({id: user._id, name: user.name, email: user.email});
-			res.status(200);
+			res.status(200).json({id: user._id, name: user.name, email: user.email});
 		}
 	})
 });
 
 // 3
 router.get('/users', function (req, res, next) {
+	console.log(req.query.groupID);
+	console.log(req.query.projectID);
 	if (req.query.groupID) {
-		Group.findById(req.query.groupID, function(err, res) {
-			if (err) {
-				next(err);
+		Group.findById(req.query.groupID, function (err_g, res_g) {
+			console.log(res_g);
+			console.log(res_g.owner);
+			if (err_g) {
+				next(err_g);
 			} else {
-				res.json(res);
+				res.status(200).json([{'id': res_g.owner}]);
 			}
 		})
-	}
-	if (req.query.projectID) {
-		Project.findById(req.query.projectID, function(err, res) {
-			if (err) {
-				next(err);
+	} else if (req.query.projectID) {
+		Project.findById(req.query.projectID, function (err_p, res_p) {
+			console.log(res_p);
+			console.log(res_p.members);
+			if (err_p) {
+				next(err_p);
 			} else {
-				res.json(res);
+				res.status(200).json([{'id': res_p.members}]);
 			}
 		})
+	} else {
+		next(err);
 	}
 });
 
@@ -115,8 +120,7 @@ router.put('/user/:user_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'User successfully updated', id: req.body._id, name: req.body.name, email: req.body.email});
-			res.status(200);
+			res.status(200).json({message: 'User successfully updated', id: user._id, name: req.body.name, email: req.body.email});
 		}
 	})
 });
@@ -128,21 +132,12 @@ router.delete('/user/:user_id', function (req, res, next) {
 			next(err);
 		} 
 		else if (!user) {
-			res.json({message: 'User not found'});
-			res.status(404); // Vaikko joku muu error?
+			res.status(404).json({message: 'User not found'}); // Vaikko joku muu error?
 		} else {
-			res.json({message: 'User successfully deleted', id: user._id});
-			res.status(200);
+			res.status(200).json({message: 'User successfully deleted', id: user._id});
 		}
 	})
 });
-
-/*
-router.all('/group', function (req, res, next) {
-	console.log("hello");
-	res.send('group');
-});
-*/
 
 // Group
 // 1
@@ -152,8 +147,7 @@ router.post('/group', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'Group successfully created', id: group.id});
-			res.status(201);
+			res.status(201).json({message: 'Group successfully created', id: group.id});
 		}
 	});
 });
@@ -164,7 +158,7 @@ router.get('/group/:group_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({id: group._id, name: group.name, owner: group.owner});
+			res.status(200).json({id: group._id, name: group.name, owner: group.owner});
 		}
 	})
 });
@@ -172,11 +166,16 @@ router.get('/group/:group_id', function (req, res, next) {
 // 3
 router.put('/group/:group_id', function (req, res, next) {
 	Group.findByIdAndUpdate(req.params.group_id, req.body, function (err, group) {
+		console.log("req.body");
+		console.log(req.body);
+		console.log("req.params");
+		console.log(req.params);
+		console.log("group");
+		console.log(group);
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'Group successfully updated', id: group._id, name: group.name, email: group.email});
-			res.status(200);
+			res.status(200).json({message: 'Group successfully updated', id: group._id, name: req.body.name, owner: req.body.owner});
 		}
 	})
 });
@@ -187,11 +186,9 @@ router.delete('/group/:group_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else if (!group) {
-			res.json({message: 'Group not found'});
-			res.status(404); // Vaikko joku muu error?
+			res.status(404).json({message: 'Group not found'}); // Vaikko joku muu error?
 		} else {
-			res.json({message: 'Group successfully deleted', id: group._id});
-			res.status(200);
+			res.status(200).json({message: 'Group successfully deleted', id: group._id});
 		}
 	})
 });
@@ -202,19 +199,16 @@ router.put('/group/:group_id/:user_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else if (!user) {
-			res.json({message: 'User not found'});
-			res.status(404);
+			res.status(404).json({message: 'User not found'});
 		} else {
 			Group.findByIdAndUpdate(req.params.group_id, req.params, function(err, group) {
 				console.log(group);
 				if (err) {
 					next(err);
 				} else if (!group) {
-					res.json({message: 'Group not found'});
-					res.status(404);
+					res.status(404).json({message: 'Group not found'});
 				} else {
-					res.json({message: 'User successfully added into a group', id: user._id}); // Also add group to User
-					res.status(200);
+					res.status(200).json({message: 'User successfully added into a group', id: user._id}); // Also add group to User
 				}
 			})
 		}
@@ -229,8 +223,7 @@ router.post('/project', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'Project successfully created', id: project.id});
-			res.status(201);
+			res.status(201).json({message: 'Project successfully created', id: project.id});
 		}
 	})
 });
@@ -241,11 +234,9 @@ router.get('/project/:project_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else if (!project) {
-				res.json({message: 'Project not found'});
-				res.status(404);
+			res.status(404).json({message: 'Project not found'});
 		} else {
-			res.json({id: project._id, name: project.name, description: project.description, type: project.type[0], members: project.members});
-			res.status(200);
+			res.status(200).json({id: project._id, name: project.name, description: project.description, type: project.type[0], members: project.members});
 		}
 	})
 });
@@ -256,8 +247,7 @@ router.put('/project/:project_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else {
-			res.json({message: 'Project successfully updated', id: req.params.project_id, name: req.params.name, description: req.params.description, type: req.params.type[0], members: req.params.members});
-			res.status(200);
+			res.status(200).json({message: 'Project successfully updated', id: project._id, name: req.body.name, description: req.body.description, type: req.body.type, members: req.body.members});
 		}
 	})
 });
@@ -268,11 +258,10 @@ router.delete('/project/:project_id', function (req, res, next) {
 		if (err) {
 			next(err);
 		} else if (!project) {
-				res.json({message: 'Project not found'});
-				res.status(404);
+			res.status(404).json({message: 'Project not found'});
+				
 		} else {
-			res.json({message: 'Project successfully deleted', id: project._id});
-			res.status(200);
+			res.status(200).json({message: 'Project successfully deleted', id: project._id});
 		}
 	})
 });
