@@ -28,13 +28,6 @@ var SensorSchema = new Schema({
 mongoose.model('Sensor', SensorSchema);
 var Sensor = require('mongoose').model('Sensor');
 
-// CORS
-/*router.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});*/
-
 // Sensor
 // 1 - Create sensor
 router.post('/sensor', function (req, res, next) {
@@ -81,6 +74,23 @@ router.delete('/sensor/:sensor_id', function (req, res, next) {
 			res.status(200).json({message: 'Sensor successfully deleted', id: sensor._id});
 		}
 	});
+});
+
+// 5 - Any other POST/GET/PUT/DELETE request
+router.post('*', function (req, res) {
+	res.status(404).json({message: 'Invalid URL'});
+});
+
+router.get('*', function (req, res) {
+	res.status(404).json({message: 'Invalid URL'});
+});
+
+router.put('*', function (req, res) {
+	res.status(404).json({message: 'Invalid URL'});
+});
+
+router.delete('*', function (req, res) {
+	res.status(404).json({message: 'Invalid URL'});
 });
 
 module.exports = router;

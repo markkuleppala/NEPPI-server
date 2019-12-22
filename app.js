@@ -6,14 +6,13 @@ const port = 3000;
 const express = require('express');
 var app = express();
 
-// Allow all CORS requests
+// Allow all CORS requests - Access-Control-Allow-Origin: *
 var cors = require('cors');
 app.use(cors());
 
 // Use MongoDB
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://mongo:27017/db', {useNewUrlParser: true, useUnifiedTopology: true }); // Docker environment
-//mongoose.connect('mongodb://localhost:27017/db', {useNewUrlParser: true, useUnifiedTopology: true }); // Local environment
 
 // Routing
 var routes = require('./routes');
