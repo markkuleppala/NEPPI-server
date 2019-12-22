@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   backend:
-    image: nodebackend:mcc
+    build: .
     container_name: nodebackend
     ports:
       - "3000:3000"

@@ -3,9 +3,10 @@ info:
   version: "3.0.0"
   title: "OpenApi"
 servers:
-  - url: "http://localhost:3000"
+  - url: "neppi-server.northeurope.cloudapp.azure.com:3000"
+#  - url: "http://13.69.194.97:3000"
 paths:
-  /user:
+  /sensor:
     post:
       tags:
         - "Create"
@@ -14,10 +15,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Sensor"
       responses:
         201:
-          description: "User successfully created"
+          description: "Sensor successfully created"
           content:
             application/json:
               schema:
@@ -25,21 +26,21 @@ paths:
                 properties:
                   message:
                     type: string
-                    default: "User successfully created"
+                    default: "Sensor successfully created"
                   id:
                     type: string
           links:
-            GetUserById:
-              operationId: getUser
+            GetSensorById:
+              operationId: getSensor
               parameters:
                 id: "response.body#/id"
-  /user/{user_id}:
+  /sensor/{sensor_id}:
     parameters:
       - in: path
-        name: user_id
+        name: sensor_id
         required: true
         schema:
-          $ref: "#/components/schemas/User"
+          $ref: "#/components/schemas/Sensor"
     get:
       tags:
         - Read
@@ -58,12 +59,13 @@ paths:
                   email:
                     type: string
           links:
-            GetUserById:
-              operationId: getUser
+            GetSensorById:
+              operationId: getSensor
               parameters:
-                id: "$request.path.user_id"
+                id: "$request.path.sensor_id"
                 name: "$response.body#/name"
-                email: "$response.body#/email"
+                value: "$response.body#/value"
+                status: "$response.body#/status"
     put:
       tags:
         - "Update"
@@ -72,10 +74,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Sensor"
       responses:
         200:
-          description: "User successfully updated"
+          description: "Sensor successfully updated"
           content:
             application/json:
               schema:
@@ -83,22 +85,23 @@ paths:
                 properties:
                   message:
                     type: string
-                    default: "User successfully updated"
+                    default: "Sensor successfully updated"
                   id:
                     type: string
           links:
-            GetUserById:
-              operationId: getUser
+            GetSensorById:
+              operationId: getSensor
               parameters:
-                id: "$request.path.user_id"
+                id: "$request.path.sensor_id"
                 name: "$response.body#/name"
-                email: "$response.body#/email"
+                value: "$response.body#/value"
+                status: "$response.body#/status"
     delete:
       tags:
         - "Delete"
       responses:
         200:
-          description: "User successfully deleted"
+          description: "Sensor successfully deleted"
           content:
             application/json:
               schema:
@@ -106,376 +109,22 @@ paths:
                 properties:
                   message:
                     type: string
-                    default: "User successfully deleted"
+                    default: "Sensor successfully deleted"
                   id:
                     type: string
           links:
-            GetUserById:
-              operationId: getUser
+            GetSensorById:
+              operationId: getSensor
               parameters:
-                id: "$request.path.user_id"
-  /users:
-    get:
-      tags:
-        - "Read"
-      parameters:
-        - in: "query"
-          name: groupID
-          schema:
-            type: string
-        - in: "query"
-          name: projectID
-          schema:
-            type: string
-      responses:
-        200:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  properties:
-                    id:
-                      type: string
-          links:
-            GetUserById:
-              operationId: getUser
-              parameters:
-                id: "$response.body#/id"
-  /group:
-    post:
-      tags:
-        - "Create"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Group"
-      responses:
-        201:
-          description: "Group successfully created"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Group successfully created"
-                  id:
-                    type: string
-          links:
-            GetGroupById:
-              operationId: getGroup
-              parameters:
-                id: "$response.body#/id"
-  /group/{group_id}:
-    parameters:
-      - in: "path"
-        name: "group_id"
-        required: true
-        schema:
-          $ref: "#/components/schemas/Group"
-    get:
-      tags:
-        - "Read"
-      responses:
-        200:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  owner:
-                    type: string
-          links:
-            GetGroupById:
-              operationId: getGroup
-              parameters:
-                id: "$request.path.group_id"
-                name: "$response.body#/name"
-                owner: "$response.body#/owner"
-    put:
-      tags:
-        - "Update"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Group"
-      responses:
-        200:
-          description: "Group successfully updated"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Group successfully updated"
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  owner:
-                    type: string
-          links:
-            PutGroupById:
-              operationId: putGroup
-              parameters:
-                id: "$request.path.group_id"
-                name: "$response.body#/name"
-                owner: "$response.body#/owner"
-    delete:
-      tags:
-        - "Delete"
-      responses:
-        200:
-          description: "Group successfully deleted"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Group successfully updated"
-                  id:
-                    type: string
-          links:
-            DeleteGroupById:
-              operationId: deleteGroup
-              parameters:
-                id: "$request.path.group_id"
-  /group/{group_id}/{user_id}:
-    parameters:
-    - in: "path"
-      name: group_id
-      required: true
-      schema:
-        $ref: "#/components/schemas/Group"
-    - in: "path"
-      name: user_id
-      required: true
-      schema:
-        $ref: "#/components/schemas/User"
-    put:
-      tags:
-       - "Create"
-      responses:
-        200:
-          description: "User successfully added into a group"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "User successfully added into a group"
-                  id:
-                    type: string
-          links:
-            PutGroupById:
-              operationId: putGroup
-              parameters:
-                id: "$request.path.user_id"
-  /project:
-    post:
-      tags:
-        - "Create"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Project"
-      responses:
-        201:
-          description: "Project successfully created"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Project successfully created"
-                  id:
-                    type: string
-          links:
-            PostProjectById:
-              operationId: postGroup
-              parameters:
-                id: "$response.body#/id"
-  /project/{project_id}:
-    parameters:
-      - in: "path"
-        name: project_id
-        required: true
-        schema:
-          $ref: "#/components/schemas/Project"
-    get:
-      tags:
-        - Read
-      responses:
-        200:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  email:
-                    type: string
-                  description:
-                    type: string
-                  type:
-                    type: string
-                  members:
-                    type: array
-                    items:
-                      properties:
-                        id:
-                          type: string
-          links:
-            GetProjectById:
-              operationId: getProject
-              parameters:
-                id: "$request.path.project_id"
-                name: "$response.body#/name"
-                description: "$response.body#/description"
-                type: "$response.body#/type"
-                members: "$response.body#/members"
-
-    put:
-      tags:
-        - "Update"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Project"
-      responses:
-        200:
-          description: "Project successfully updated"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Project successfully updated"
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  type:
-                    type: string
-                  members:
-                    type: array
-                    items:
-                      properties:
-                        id:
-                          type: string
-          links:
-            PutProjectById:
-              operationId: putProject
-              parameters:
-                id: "$request.path.project_id"
-                name: "$request.body#/name"
-                description: "$request.body#/description"
-                type: "$request.body#/type"
-                members: "$response.body#/members"
-    delete:
-      tags:
-        - "Delete"
-      responses:
-        200:
-          description: "Project successfully deleted"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    default: "Project successfully updated"
-                  id:
-                    type: string
-                    default: name
-          links:
-            DeleteProjectById:
-              operationId: deleteProject
-              parameters:
-                id: "$request.path.project_id"
+                id: "$request.path.sensor_id"
 components:
   schemas:
-    User:
+    Sensor:
       type: object
       properties:
         name:
           type: string
-        email:
+        value:
           type: string
-        address:
+        status:
           type: string
-        phoneNumber:
-          type: string
-        groups:
-          type: array
-          items:
-            $ref: "#/components/schemas/Group"
-      required:
-        - name
-        - email
-    Project:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        type:
-          type: string
-          enum:
-            - "Personal"
-            - "Group"
-        members:
-          type: array
-          items:
-            $ref: "#/components/schemas/User"
-      required:
-        - name
-        - description
-        - type
-        - members
-    Group:
-      type: object
-      properties:
-        name:
-          type: string
-        owner:
-          type: object
-          items:
-            $ref: "#/components/schemas/User"
-      required:
-        - name
-        - owner

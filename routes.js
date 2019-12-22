@@ -10,7 +10,6 @@ mongoose.set('useFindAndModify', false); // Options
 router.use(bodyParser.urlencoded({extended: true}));
 router.use(bodyParser.json());
 
-
 // API documentation
 const YAML = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
@@ -18,219 +17,70 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 
 router.use('/api-docs', swaggerUi.serve);
 router.get('/api-docs', swaggerUi.setup(swaggerDocument));
-//
 
-var UserSchema = new Schema({
-	name: { type: String, required: true },
-	email: { type: String, required: true },
-	address: { type: String },
-	phoneNumber: { type: String },
-	groups: { type: Array }
+// Sensor dataschema
+var SensorSchema = new Schema({
+	name: { type: String },
+	value: { type: String },
+	status: { type: String }
 });
 
-mongoose.model('User', UserSchema)
-var User = require('mongoose').model('User');
+mongoose.model('Sensor', SensorSchema);
+var Sensor = require('mongoose').model('Sensor');
 
-var ProjectSchema = new Schema({
-	name: { type: String, required: true },
-	description: { type: String, required: true },
-	type: { type: Array, required: true },
-	members: { type: [{type: mongoose.Schema.ObjectId, ref: 'User'}], required: true }
-});
+// CORS
+/*router.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});*/
 
-mongoose.model('Project', ProjectSchema)
-var Project = require('mongoose').model('Project');
-
-var GroupSchema = new Schema({
-	name: { type: String, required: true },
-	owner: { type: mongoose.Schema.ObjectId, ref: 'User', required: true }
-});
-
-mongoose.model('Group', GroupSchema)
-var Group = require('mongoose').model('Group');
-
-// User
-// 1
-router.post('/user', function (req, res, next) {
-	var user = new User(req.body);
-	user.save(function (err) {
-		if (err) {
-			next(err);
+// Sensor
+// 1 - Create sensor
+router.post('/sensor', function (req, res, next) {
+	var sensor = new Sensor(req.body);
+	sensor.save(function (err) {
+		if (!sensor || err) { // Sensor not been created or invalid request
+			res.status(400).json({message: 'Invalid request'});
 		} else {
-			res.status(201).json({message: 'User successfully created', id: user.id});
+			res.status(201).json({message: 'Sensor successfully created', id: sensor.id});			
 		}
 	});
 });
 
-// 2
-router.get('/user/:user_id', function (req, res, next) {
-	User.findById(req.params.user_id, function (err, user) {
-		if (err) {
-			next(err);
+// 2 - Get sensor data
+router.get('/sensor/:sensor_id', function (req, res, next) {
+	Sensor.findById(req.params.sensor_id, function (err, sensor) {
+		if (!sensor || err) { // Sensor not found or invalid request
+			res.status(400).json({message: 'Invalid request or sensor id'});
 		} else {
-			res.status(200).json({id: user._id, name: user.name, email: user.email});
-		}
-	})
-});
-
-// 3
-router.get('/users', function (req, res, next) {
-	if (req.query.groupID) {
-		User.find({groups: req.query.groupID}, function (err_u, res_u) {
-			if (err_u) {
-				next(err_u);
-			} else {
-				res.status(200).json([{'id': res_u[0]._id}]);
-			}
-		})
-	} else if (req.query.projectID) {
-		Project.findById(req.query.projectID, function (err_p, res_p) {
-			if (err_p) {
-				next(err_p);
-			} else {
-				res.status(200).json([{'id': res_p.members[0]}]);
-			}
-		})
-	} else {
-		next(err);
-	}
-});
-
-// 4
-router.put('/user/:user_id', function (req, res, next) {
-	User.findByIdAndUpdate(req.params.user_id, req.body, function (err, user) {
-		if (err) {
-			next(err);
-		} else {
-			res.status(200).json({message: 'User successfully updated', id: user._id, name: req.body.name, email: req.body.email});
-		}
-	})
-});
-
-// 5
-router.delete('/user/:user_id', function (req, res, next) {
-	User.findByIdAndDelete(req.params.user_id, function (err, user) {
-		if (err) {
-			next(err);
-		} 
-		else if (!user) {
-			res.status(404).json({message: 'User not found'}); // Vaikko joku muu error?
-		} else {
-			res.status(200).json({message: 'User successfully deleted', id: user._id});
-		}
-	})
-});
-
-// Group
-// 1
-router.post('/group', function (req, res, next) {
-	var group = new Group(req.body);
-	group.save(function (err) {
-		if (err) {
-			next(err);
-		} else {
-			res.status(201).json({message: 'Group successfully created', id: group.id});
+			res.status(200).json({id: sensor._id, name: sensor.name, value: sensor.value, status: sensor.status});			
 		}
 	});
 });
 
-// 2
-router.get('/group/:group_id', function (req, res, next) {
-	Group.findById(req.params.group_id, function (err, group) {
-		if (err) {
-			next(err);
+// 3 - Update sensor data
+router.put('/sensor/:sensor_id', function (req, res, next) {
+	Sensor.findByIdAndUpdate(req.params.sensor_id, req.body, function (err, sensor) {
+		if (!sensor || err) { // Sensor not found or invalid request
+			res.status(400).json({message: 'Invalid request or sensor id'});
+		} else if (!req.body.name && !req.body.value && !req.body.status) { // Data or header missing --> no data received
+			res.status(400).json({message: 'No data received to update'});
 		} else {
-			res.status(200).json({id: group._id, name: group.name, owner: group.owner});
+			res.status(200).json({message: 'Sensor successfully updated', id: sensor._id, name: req.body.name, value: req.body.value, status: req.body.status});
 		}
-	})
+	});
 });
 
-// 3
-router.put('/group/:group_id', function (req, res, next) {
-	Group.findByIdAndUpdate(req.params.group_id, req.body, function (err, group) {
-		if (err) {
-			next(err);
+// 4 - Delete sensor
+router.delete('/sensor/:sensor_id', function (req, res, next) {
+	Sensor.findByIdAndDelete(req.params.sensor_id, function (err, sensor) {
+		if (!sensor || err) { // Sensor not found or invalid request
+			res.status(400).json({message: 'Invalid request or sensor id'});
 		} else {
-			res.status(200).json({message: 'Group successfully updated', id: group._id, name: req.body.name, owner: req.body.owner});
+			res.status(200).json({message: 'Sensor successfully deleted', id: sensor._id});
 		}
-	})
-});
-
-// 4
-router.delete('/group/:group_id', function (req, res, next) {
-	Group.findByIdAndDelete(req.params.group_id, function (err, group) {
-		if (err) {
-			next(err);
-		} else if (!group) {
-			res.status(404).json({message: 'Group not found'}); // Vaikko joku muu error?
-		} else {
-			res.status(200).json({message: 'Group successfully deleted', id: group._id});
-		}
-	})
-});
-
-// 5
-router.put('/group/:group_id/:user_id', function (req, res, next) {
-	User.findByIdAndUpdate(req.params.user_id, {$push: {groups: req.params.group_id}}, function (err, user) {
-		if (err) {
-			next(err);
-		} else if (!user) {
-			res.status(404).json({message: 'User not found'});
-		} else {
-			res.status(200).json({message: 'User successfully added into a group', id: user._id});
-		}
-	})
-});
-
-// Project
-// 1
-router.post('/project', function (req, res, next) {
-	var project = new Project(req.body);
-	project.save(function (err) {
-		if (err) {
-			next(err);
-		} else {
-			res.status(201).json({message: 'Project successfully created', id: project.id});
-		}
-	})
-});
-
-// 2
-router.get('/project/:project_id', function (req, res, next) {
-	Project.findById(req.params.project_id, function (err, project) {
-		if (err) {
-			next(err);
-		} else if (!project) {
-			res.status(404).json({message: 'Project not found'});
-		} else {
-			res.status(200).json({id: project._id, name: project.name, description: project.description, type: project.type[0], members: project.members});
-		}
-	})
-});
-
-// 3
-router.put('/project/:project_id', function (req, res, next) {
-	Project.findByIdAndUpdate(req.params.project_id, req.body, function (err, project) {
-		if (err) {
-			next(err);
-		} else {
-			res.status(200).json({message: 'Project successfully updated', id: project._id, name: req.body.name, description: req.body.description, type: req.body.type, members: req.body.members});
-		}
-	})
-});
-
-// 4
-router.delete('/project/:project_id', function (req, res, next) {
-	Project.findByIdAndDelete(req.params.project_id, function (err, project) {
-		if (err) {
-			next(err);
-		} else if (!project) {
-			res.status(404).json({message: 'Project not found'});
-				
-		} else {
-			res.status(200).json({message: 'Project successfully deleted', id: project._id});
-		}
-	})
+	});
 });
 
 module.exports = router;

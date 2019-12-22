@@ -6,9 +6,7 @@ WORKDIR /usr/app
 
 COPY package*.json ./
 
-COPY app.js ./
-
-COPY routes.js ./
+COPY *.js ./
 
 COPY swagger.yaml ./
 
