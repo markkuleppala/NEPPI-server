@@ -1,8 +1,8 @@
-# Simple CRUD server for NEPPI
+# Simple RESTful CRUD server for NEPPI-course
 
 Sensor database server created with NodeJS, MongoDB, Swagger, and Docker.
 
-Supports CRUD (Create, Read, Update, Delete) commands.
+Supports CRUD (Create, Read, Update, Delete) commands with RESTful API.
 
 The API-port is 3000 by default. In order to change this, it needs to be modified in app.js, Dockerfile, and docker-compose.yml.
 
